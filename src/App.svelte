@@ -1,6 +1,7 @@
 <script>
-  import { Col, Container, Row, Input, Alert } from "sveltestrap";
+  import { Col, Container, Row, Input, Alert, Button, Icon } from "sveltestrap";
   import { fragments, traits } from "./data.js";
+  import { copyTextToClipboard } from "./copyToClipboard.js";
 
   //READ ONLY, FOR VISUAL ONLY, perform all queries on 'fragments'
   const frags1 = fragments.slice(0, fragments.length / 2);
@@ -14,7 +15,8 @@
     try {
       //parse query string
       let queryList = window.location.search.substring(1).split("=")[1];
-      if (queryList.length > 1) {
+
+      if (queryList && queryList.length > 0) {
         //url decode query
         queryList = decodeURIComponent(queryList);
         //split query into array
@@ -184,6 +186,38 @@
           </Row>
         {/each}
       </Row>
+      <Row>
+        <Button
+          color="primary"
+          on:click={() => {
+            copyTextToClipboard(window.location.href);
+          }}
+        >
+          Copy to Clipboard
+        </Button>
+      </Row>
+    </Col>
+  </Row>
+  <Row class="fixed-bottom">
+    <Col>
+      <div class="kofi mb-3 ms-3" style="margin-left: 16px;">
+        <a href="https://ko-fi.com/M4M683IMB" target="_blank"
+          ><img
+            height="36"
+            style="border:0px;height:36px;"
+            src="https://cdn.ko-fi.com/cdn/kofi5.png?v=3"
+            border="0"
+            alt="Buy Me a Coffee at ko-fi.com"
+          /></a
+        >
+      </div>
+    </Col>
+    <Col>
+      <div class="start-100">
+        <a href="https://github.com/JackDallas/">
+          <Icon name="github" style="font-size:30px" />
+        </a>
+      </div>
     </Col>
   </Row>
 </Container>
