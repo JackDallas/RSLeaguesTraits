@@ -1,0 +1,189 @@
+<script>
+  import { Col, Container, Row, Input, Alert } from "sveltestrap";
+  import { fragments, traits } from "./data.js";
+
+  //READ ONLY, FOR VISUAL ONLY, perform all queries on 'fragments'
+  const frags1 = fragments.slice(0, fragments.length / 2);
+  const frags2 = fragments.slice(fragments.length / 2, fragments.length);
+
+  let checked = [];
+  let activeTraits = [];
+  let invalidQuery = false;
+
+  if ("URLSearchParams" in window) {
+    try {
+      //parse query string
+      let queryList = window.location.search.substring(1).split("=")[1];
+      if (queryList.length > 1) {
+        //url decode query
+        queryList = decodeURIComponent(queryList);
+        //split query into array
+        queryList = queryList.split(",");
+
+        // validate
+        queryList.forEach((query) => {
+          if (isNaN(query)) {
+            invalidQuery = true;
+            throw new Error("Invalid query");
+          }
+        });
+
+        queryList.forEach((i) => {
+          checked.push(fragments[i]);
+        });
+
+        checked = checked;
+        updateTraits();
+      }
+    } catch (e) {
+      //Remove in prod
+      console.log(e);
+    }
+  }
+
+  function changeEvent(fragment, e) {
+    if (e.target.checked) {
+      checked.push(fragment.fragment);
+    } else {
+      checked.splice(checked.indexOf(fragment.fragment), 1);
+    }
+    checked = checked;
+
+    updateTraits();
+  }
+
+  function updateTraits() {
+    let traitCounts = new Map();
+
+    for (let fragmentName in checked) {
+      let fragObj = checked[fragmentName];
+
+      let val1 = traitCounts.get(fragObj.set_effect_1);
+      let val2 = traitCounts.get(fragObj.set_effect_2);
+
+      if (!val1) {
+        traitCounts.set(fragObj.set_effect_1, 1);
+      } else {
+        traitCounts.set(fragObj.set_effect_1, val1 + 1);
+      }
+      if (!val2) {
+        traitCounts.set(fragObj.set_effect_2, 1);
+      } else {
+        traitCounts.set(fragObj.set_effect_2, val2 + 1);
+      }
+    }
+
+    activeTraits = [];
+
+    traitCounts.forEach(function (value, key) {
+      traits.forEach((trait) => {
+        if (trait.name === key) {
+          let traitObj = {
+            name: trait.name,
+            description: "",
+            count: 0,
+          };
+          trait.effects.forEach((effect) => {
+            // if the incoming value from trait counts is higher than the cost and the already set cost if it exists (default 0 garentees it will be set)
+            if (value >= effect.cost && value >= traitObj.count) {
+              traitObj.description = effect.description;
+              traitObj.count = effect.cost;
+            }
+          });
+          if (traitObj.count > 0) {
+            activeTraits.push(traitObj);
+          }
+        }
+      });
+    });
+
+    activeTraits = activeTraits;
+
+    if ("URLSearchParams" in window) {
+      var searchParams = new URLSearchParams(window.location.search);
+      let ids = [];
+      for (let i = 0; i < checked.length; i++) {
+        let checkedFrag = checked[i];
+        let index = fragments.indexOf(checkedFrag);
+        if (index !== -1) {
+          ids.push(index);
+        }
+      }
+      searchParams.set("frag", ids.join(","));
+      var newRelativePathQuery =
+        window.location.pathname + "?" + searchParams.toString();
+      history.pushState(null, "", newRelativePathQuery);
+    }
+  }
+
+  function isChecked(name) {
+    return checked.find((fragment) => fragment.name === name) === undefined
+      ? false
+      : true;
+  }
+</script>
+
+<Container>
+  {#if invalidQuery}
+    <Row>
+      <Alert dismissible color="danger">
+        <h4 class="alert-heading text-capitalize">
+          Query String is invalid! should be format "?frag=1,2,3,4,5,6,7"
+        </h4>
+      </Alert>
+    </Row>
+  {/if}
+  <Row>
+    <Col>
+      {#each frags1 as fragment}
+        <Row>
+          <Input
+            type="switch"
+            label={fragment.name}
+            on:change={(e) => {
+              changeEvent({ fragment }, e);
+            }}
+            disabled={checked.length >= 7 && !isChecked(fragment.name)}
+            checked={isChecked(fragment.name)}
+          />
+        </Row>
+      {/each}
+    </Col>
+    <Col>
+      {#each frags2 as fragment}
+        <Row>
+          <Input
+            type="switch"
+            label={fragment.name}
+            on:change={(e) => {
+              changeEvent({ fragment }, e);
+            }}
+            disabled={checked.length >= 7 && !isChecked(fragment.name)}
+            checked={isChecked(fragment.name)}
+          />
+        </Row>
+      {/each}
+    </Col>
+    <Col>
+      {#each checked as frag}
+        <Row>
+          <h3>{frag.name}</h3>
+        </Row>
+      {:else}
+        <Row>
+          <h3>No Fragments Selected</h3>
+        </Row>
+      {/each}
+    </Col>
+    <Col>
+      <Row>
+        {#each activeTraits as trait}
+          <Row>
+            <h3>{trait.name} ({trait.count})</h3>
+            <p>{trait.description}</p>
+          </Row>
+        {/each}
+      </Row>
+    </Col>
+  </Row>
+</Container>
