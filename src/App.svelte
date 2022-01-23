@@ -215,7 +215,7 @@
     <Col>
       <div class="start-100">
         <a href="https://github.com/JackDallas/">
-          <Icon name="github" style="font-size:30px" />
+          <Icon name="github" style="font-size:30px;color:white;" />
         </a>
       </div>
     </Col>
