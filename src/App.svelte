@@ -1,15 +1,29 @@
 <script>
-  import { Col, Container, Row, Input, Alert, Button, Icon } from "sveltestrap";
+  import {
+    Col,
+    Container,
+    Row,
+    Input,
+    Alert,
+    Button,
+    Icon,
+    Tooltip,
+  } from "sveltestrap";
   import { fragments, traits } from "./data.js";
   import { copyTextToClipboard } from "./copyToClipboard.js";
 
   //READ ONLY, FOR VISUAL ONLY, perform all queries on 'fragments'
   const frags1 = fragments.slice(0, fragments.length / 2);
   const frags2 = fragments.slice(fragments.length / 2, fragments.length);
+  const fragLists = [frags1, frags2];
+
+  // Change when Jagex patch
+  const maxFragments = 7;
 
   let checked = [];
   let activeTraits = [];
   let invalidQuery = false;
+  let limitToMaxFrags = true;
 
   if ("URLSearchParams" in window) {
     try {
@@ -123,70 +137,29 @@
       ? false
       : true;
   }
+
+  function htmlFriendlyName(name) {
+    //Replace all non-alphanumeric characters with an underscore
+    return name.replace(/\W/g, "_");
+  }
 </script>
 
-<Container>
-  {#if invalidQuery}
-    <Row>
-      <Alert dismissible color="danger">
-        <h4 class="alert-heading text-capitalize">
-          Query String is invalid! should be format "?frag=1,2,3,4,5,6,7"
-        </h4>
-      </Alert>
-    </Row>
-  {/if}
-  <Row>
-    <Col>
-      {#each frags1 as fragment}
-        <Row>
-          <Input
-            type="switch"
-            label={fragment.name}
-            on:change={(e) => {
-              changeEvent({ fragment }, e);
-            }}
-            disabled={checked.length >= 7 && !isChecked(fragment.name)}
-            checked={isChecked(fragment.name)}
-          />
-        </Row>
-      {/each}
-    </Col>
-    <Col>
-      {#each frags2 as fragment}
-        <Row>
-          <Input
-            type="switch"
-            label={fragment.name}
-            on:change={(e) => {
-              changeEvent({ fragment }, e);
-            }}
-            disabled={checked.length >= 7 && !isChecked(fragment.name)}
-            checked={isChecked(fragment.name)}
-          />
-        </Row>
-      {/each}
-    </Col>
-    <Col>
-      {#each checked as frag}
-        <Row>
-          <h3>{frag.name}</h3>
-        </Row>
-      {:else}
-        <Row>
-          <h3>No Fragments Selected</h3>
-        </Row>
-      {/each}
-    </Col>
-    <Col>
-      <Row>
-        {#each activeTraits as trait}
-          <Row>
-            <h3>{trait.name} ({trait.count})</h3>
-            <p>{trait.description}</p>
-          </Row>
-        {/each}
-      </Row>
-      <Row>
+<main>
+  <Container>
+    <Row class="mb-3">
+      <Col
+        xs="6"
+        md="6"
+        class="d-flex justify-content-start text-start align-items-start"
+      >
+        <Input
+          type="checkbox"
+          label="Limit to {maxFragments}"
+          bind:checked={limitToMaxFrags}
+          disabled={checked.length > maxFragments && !limitToMaxFrags}
+        />
+      </Col>
+      <Col xs="6" md="6" class="text-end">
         <Button
           color="primary"
           on:click={() => {
@@ -195,29 +168,95 @@
         >
           Copy to Clipboard
         </Button>
+      </Col>
+    </Row>
+    {#if invalidQuery}
+      <Row>
+        <Alert dismissible color="danger">
+          <h4 class="alert-heading text-capitalize">
+            Query String is invalid! should be format "?frag=1,2,3,4,5,6,7"
+          </h4>
+        </Alert>
       </Row>
+    {/if}
+    <Row>
+      <Row>
+        {#each fragLists as fragmentList}
+          <Col xs="6" md="3" class="mb-4">
+            {#each fragmentList as fragment}
+              <Row>
+                <Col xs="10">
+                  <Input
+                    type="switch"
+                    label={fragment.name}
+                    on:change={(e) => {
+                      changeEvent({ fragment }, e);
+                    }}
+                    disabled={checked.length >= maxFragments &&
+                      !isChecked(fragment.name) &&
+                      limitToMaxFrags}
+                    checked={isChecked(fragment.name)}
+                  />
+                </Col>
+                <Col xs="2">
+                    <Icon id={`btn-${htmlFriendlyName(fragment.name)}`} name="info-square-fill d-inline "/>
+                    <Tooltip target={`btn-${htmlFriendlyName(fragment.name)}`} bottom>{fragment.level_effects} <br /><br/> Set Effect 1: {fragment.set_effect_1} <br/> Set Effect 2: {fragment.set_effect_2}</Tooltip>
+   
+                </Col>
+              </Row>
+            {/each}
+          </Col>
+        {/each}
+        <Col xs="12" md="6">
+          <Row>
+            <Col xs="6">
+              <h2 style="text-decoration:underline;">Selected Fragments</h2>
+              {#each checked as frag}
+                <Row>
+                  <h5>{frag.name}</h5>
+                </Row>
+              {:else}
+                <Row>
+                  <h5>No Fragments Selected</h5>
+                </Row>
+              {/each}
+            </Col>
+            <Col xs="6">
+              <h2 style="text-decoration:underline;">Traits</h2>
+              <Row>
+                {#each activeTraits as trait}
+                  <Row>
+                    <h3>{trait.name} ({trait.count})</h3>
+                    <p>{trait.description}</p>
+                  </Row>
+                {/each}
+              </Row>
+            </Col>
+          </Row>
+        </Col>
+      </Row>
+    </Row>
+  </Container>
+  <Row nogutter>
+    <Col
+      xs="6"
+      md="6"
+      class="d-flex justify-content-start text-start align-items-start"
+    >
+      <a href="https://ko-fi.com/M4M683IMB" target="_blank"
+        ><img
+          height="36"
+          style="border:0px;height:36px;"
+          src="https://cdn.ko-fi.com/cdn/kofi5.png?v=3"
+          border="0"
+          alt="Buy Me a Coffee at ko-fi.com"
+        /></a
+      >
+    </Col>
+    <Col xs="6" md="6" class="text-end">
+      <a href="https://github.com/JackDallas/RSLeaguesTraits">
+        <Icon name="github" style="font-size:30px;color:white;" />
+      </a>
     </Col>
   </Row>
-  <Row class="fixed-bottom">
-    <Col>
-      <div class="kofi mb-3 ms-3" style="margin-left: 16px;">
-        <a href="https://ko-fi.com/M4M683IMB" target="_blank"
-          ><img
-            height="36"
-            style="border:0px;height:36px;"
-            src="https://cdn.ko-fi.com/cdn/kofi5.png?v=3"
-            border="0"
-            alt="Buy Me a Coffee at ko-fi.com"
-          /></a
-        >
-      </div>
-    </Col>
-    <Col>
-      <div class="start-100">
-        <a href="https://github.com/JackDallas/">
-          <Icon name="github" style="font-size:30px;color:white;" />
-        </a>
-      </div>
-    </Col>
-  </Row>
-</Container>
+</main>
