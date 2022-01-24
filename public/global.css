@@ -4,6 +4,11 @@ html, body {
 	height: 100%;
 }
 
+html {
+    overflow: -moz-scrollbars-vertical; 
+    overflow-y: scroll;
+}
+
 body {
 	color: #333;
 	margin: 0;
@@ -61,3 +66,4 @@ button:not(:disabled):active {
 button:focus {
 	border-color: #666;
 }
+

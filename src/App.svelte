@@ -8,14 +8,38 @@
     Button,
     Icon,
     Tooltip,
+    Collapse,
   } from "sveltestrap";
   import { fragments, traits } from "./data.js";
   import { copyTextToClipboard } from "./copyToClipboard.js";
 
+  let traitFilterList = [];
+
+  $: filteredFragments =
+    traitFilterList.length > 0
+      ? fragments.filter((fragment) => {
+          let filtered = false;
+          for (let i = 0; i < traitFilterList.length; i++) {
+            let trait = traitFilterList[i];
+            if (softString(fragment.set_effect_1) == softString(trait.name)) {
+              filtered = true;
+              break;
+            }
+            if (softString(fragment.set_effect_2) == softString(trait.name)) {
+              filtered = true;
+              break;
+            }
+          }
+          return filtered;
+        })
+      : fragments;
   //READ ONLY, FOR VISUAL ONLY, perform all queries on 'fragments'
-  const frags1 = fragments.slice(0, fragments.length / 2);
-  const frags2 = fragments.slice(fragments.length / 2, fragments.length);
-  const fragLists = [frags1, frags2];
+  $: frags1 = filteredFragments.slice(0, filteredFragments.length / 2);
+  $: frags2 = filteredFragments.slice(
+    filteredFragments.length / 2,
+    filteredFragments.length
+  );
+  $: fragLists = [frags1, frags2];
 
   // Change when Jagex patch
   const maxFragments = 7;
@@ -66,6 +90,15 @@
     checked = checked;
 
     updateTraits();
+  }
+
+  function relicSetChange(relicSet, e) {
+    if (e.target.checked) {
+      traitFilterList.push(relicSet.trait);
+    } else {
+      traitFilterList.splice(traitFilterList.indexOf(relicSet.trait), 1);
+    }
+    traitFilterList = traitFilterList;
   }
 
   function updateTraits() {
@@ -138,28 +171,69 @@
       : true;
   }
 
+  function isFilteredSet(name) {
+    return traitFilterList.find((relicSet) => relicSet.name === name) ===
+      undefined
+      ? false
+      : true;
+  }
+
   function htmlFriendlyName(name) {
     //Replace all non-alphanumeric characters with an underscore
     return name.replace(/\W/g, "_");
+  }
+
+  function softString(st) {
+    //Replace spaces with underscores
+    let rs = st.replace(/\s/g, "_");
+    //Replace all non-alphanumeric characters with an underscore
+    rs = rs.replace(/\W/g, "_");
+    //lowercase all characters
+    rs = rs.toLowerCase();
+
+    return rs;
+  }
+  function isFiltered(fragment, _traitFilterList) {
+    if (traitFilterList.length === 0) {
+      //Everything is filtered. yay.
+      return true;
+    }
+
+    let filtered = false;
+
+    for (let i = 0; i < _traitFilterList.length; i++) {
+      let trait = _traitFilterList[i];
+      if (softString(fragment.set_effect_1) == softString(trait.name)) {
+        filtered = true;
+        break;
+      }
+      if (softString(fragment.set_effect_2) == softString(trait.name)) {
+        filtered = true;
+        break;
+      }
+    }
+
+    return filtered;
   }
 </script>
 
 <main>
   <Container>
     <Row class="mb-3">
-      <Col
-        xs="6"
-        md="6"
-        class="d-flex justify-content-start text-start align-items-start"
-      >
+      <Col xs="4" class="text-start">
+        <Button color="primary" id="filterSetToggler">Filter Relic Sets</Button>
+      </Col>
+      <Col xs="4" class="text-center">
         <Input
           type="checkbox"
           label="Limit to {maxFragments}"
           bind:checked={limitToMaxFrags}
           disabled={checked.length > maxFragments && !limitToMaxFrags}
+          style="position: absolute"
         />
       </Col>
-      <Col xs="6" md="6" class="text-end">
+
+      <Col xs="4" class="text-end">
         <Button
           color="primary"
           on:click={() => {
@@ -170,6 +244,24 @@
         </Button>
       </Col>
     </Row>
+
+    <Collapse toggler="#filterSetToggler" class="mb-3">
+      <Row>
+        {#each traits as trait}
+          <Col xs="4" md="3">
+            <Input
+              type="checkbox"
+              checked={isFilteredSet(trait.name)}
+              label={trait.name}
+              on:change={(e) => {
+                relicSetChange({ trait }, e);
+              }}
+            />
+          </Col>
+        {/each}
+      </Row>
+    </Collapse>
+
     {#if invalidQuery}
       <Row>
         <Alert dismissible color="danger">
@@ -184,26 +276,36 @@
         {#each fragLists as fragmentList}
           <Col xs="6" md="3" class="mb-4">
             {#each fragmentList as fragment}
-              <Row>
-                <Col xs="10">
-                  <Input
-                    type="switch"
-                    label={fragment.name}
-                    on:change={(e) => {
-                      changeEvent({ fragment }, e);
-                    }}
-                    disabled={checked.length >= maxFragments &&
-                      !isChecked(fragment.name) &&
-                      limitToMaxFrags}
-                    checked={isChecked(fragment.name)}
-                  />
-                </Col>
-                <Col xs="2">
-                    <Icon id={`btn-${htmlFriendlyName(fragment.name)}`} name="info-square-fill d-inline "/>
-                    <Tooltip target={`btn-${htmlFriendlyName(fragment.name)}`} bottom>{fragment.level_effects} <br /><br/> Set Effect 1: {fragment.set_effect_1} <br/> Set Effect 2: {fragment.set_effect_2}</Tooltip>
-   
-                </Col>
-              </Row>
+              {#if isFiltered(fragment, traitFilterList)}
+                <Row>
+                  <Col xs="10">
+                    <Input
+                      type="switch"
+                      label={fragment.name}
+                      on:change={(e) => {
+                        changeEvent({ fragment }, e);
+                      }}
+                      disabled={checked.length >= maxFragments &&
+                        !isChecked(fragment.name) &&
+                        limitToMaxFrags}
+                      checked={isChecked(fragment.name)}
+                    />
+                  </Col>
+                  <Col xs="2">
+                    <Icon
+                      id={`btn-${htmlFriendlyName(fragment.name)}`}
+                      name="info-square-fill d-inline "
+                    />
+                    <Tooltip
+                      target={`btn-${htmlFriendlyName(fragment.name)}`}
+                      bottom
+                      >{fragment.level_effects} <br /><br /> Set Effect 1: {fragment.set_effect_1}
+                      <br />
+                      Set Effect 2: {fragment.set_effect_2}</Tooltip
+                    >
+                  </Col>
+                </Row>
+              {/if}
             {/each}
           </Col>
         {/each}
@@ -222,7 +324,7 @@
               {/each}
             </Col>
             <Col xs="6">
-              <h2 style="text-decoration:underline;">Traits</h2>
+              <h2 style="text-decoration:underline;">Relic Sets</h2>
               <Row>
                 {#each activeTraits as trait}
                   <Row>
@@ -237,7 +339,7 @@
       </Row>
     </Row>
   </Container>
-  <Row nogutter>
+  <Row nogutter class="mt-4">
     <Col
       xs="6"
       md="6"
