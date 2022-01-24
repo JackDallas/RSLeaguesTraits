@@ -243,7 +243,7 @@
       md="6"
       class="d-flex justify-content-start text-start align-items-start"
     >
-      <a href="https://ko-fi.com/M4M683IMB" target="_blank"
+      <a href="https://ko-fi.com/M4M683IMB" rel="noreferrer" target="_blank"
         ><img
           height="36"
           style="border:0px;height:36px;"
