@@ -396,7 +396,7 @@ export const traits = [
     "effects": [
       {
         "description": "When cooking food, making jugs of wine, cleaning grimy herbs, or mixing potions, all items in the player's inventory will be processed at once and reward the full amount of experience.	",
-        "cost": 4,
+        "cost": 3,
       }
     ]
   },
@@ -405,7 +405,7 @@ export const traits = [
     "effects": [
       {
         "description": "When smelting ores, smithing bars and cannonballs, crafting with leather, glass, uncut gems, pottery, battlestaves, spinning flax and wool, fletching logs and cutting bolt tips, all items in the player's inventory will be processed at once and reward the full amount of experience.	",
-        "cost": 4,
+        "cost": 3,
       }
     ]
   },
@@ -414,7 +414,7 @@ export const traits = [
     "effects": [
       {
         "description": "Players receive an arcane grimoire from The Sage, which allows the ability to freely switch spellbooks anywhere.	",
-        "cost": 4,
+        "cost": 3,
       }
     ]
   },
@@ -423,7 +423,7 @@ export const traits = [
     "effects": [
       {
         "description": "Hitpoint regeneration is increased by x4.	",
-        "cost": 3,
+        "cost": 2,
       }
     ]
   },
@@ -432,7 +432,7 @@ export const traits = [
     "effects": [
       {
         "description": "Players receive a crystal of memories from The Sage, which allows them to teleport themselves back to the location where their most recent teleport occurred, with some caveats regarding its usage.	",
-        "cost": 5,
+        "cost": 4,
       }
     ]
   },
@@ -444,7 +444,7 @@ export const traits = [
         "description": "Players take 30% less damage from monsters, with 50% of post-reduction damage reflected back to the attacker.",
       },
       {
-        "cost": 4,
+        "cost": 3,
         "description": "Players take 50% less damage from monsters, with 100% of post-reduction damage reflected back to the attacker.",
       }
     ]
@@ -483,7 +483,7 @@ export const traits = [
         "description": "Successful hits have a 50% chance of restoring the player's hitpoints by 5% of the damage dealt.",
       },
       {
-        "cost": 4,
+        "cost": 3,
         "description": "Successful hits have a 50% chance of restoring the player's hitpoints by 10% of the damage dealt.",
       }
     ]
@@ -492,11 +492,11 @@ export const traits = [
     "name": "Greedy Gatherer",
     "effects": [
       {
-        "cost": 3,
+        "cost": 2,
         "description": "Players will receive double the resources (with full experience) from Fishing, Woodcutting, Mining, and Farming.",
       },
       {
-        "cost": 4,
+        "cost": 3,
         "description": "Players will receive triple the resources (with full experience) from Fishing, Woodcutting, Mining, and Farming.",
       }
     ]
@@ -509,7 +509,7 @@ export const traits = [
         "description": "Players will deal 0.3% additional damage for every hitpoint missing.",
       },
       {
-        "cost": 4,
+        "cost": 3,
         "description": "Players will deal 0.6% additional damage for every hitpoint missing.",
       }
     ]
@@ -522,7 +522,7 @@ export const traits = [
         "description": "Resources obtained from Fishing, Woodcutting, Mining, and Farming have a 50% chance to be deposited directly to the player's bank.",
       },
       {
-        "cost": 4,
+        "cost": 3,
         "description": "Resources obtained from Fishing, Woodcutting, Mining, and Farming are deposited directly to the player's bank.",
       }
     ]
