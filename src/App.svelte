@@ -72,6 +72,10 @@
           checked.push(fragments[i]);
         });
 
+        if (checked.length > maxFragments) {
+          limitToMaxFrags = false;
+        }
+
         checked = checked;
         updateTraits();
       }
