@@ -256,7 +256,7 @@
             <Input
               type="checkbox"
               checked={isFilteredSet(trait.name)}
-              label={trait.name}
+              label="{trait.name} ({trait.effects[0].cost}{trait.effects.slice(1).forEach((x) => ' | {x.cost}')})"
               on:change={(e) => {
                 relicSetChange({ trait }, e);
               }}
