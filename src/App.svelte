@@ -222,8 +222,8 @@
 
   function getEffectCostsString(trait) {
     let effectCosts = "(" + trait.effects[0].cost;
-    trait.effects.slice(1).forEach((x) => effectCosts += ` | ${x.cost})`);
-    return effectCosts;
+    trait.effects.slice(1).forEach((x) => effectCosts += ` | ${x.cost}`);
+    return effectCosts + ")";
   }
 </script>
 
