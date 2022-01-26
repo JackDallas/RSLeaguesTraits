@@ -219,6 +219,12 @@
 
     return filtered;
   }
+
+  function getEffectCostsString(trait) {
+    let effectCosts = "(" + trait.effects[0].cost;
+    trait.effects.slice(1).forEach((x) => effectCosts += ` | ${x.cost})`);
+    return effectCosts;
+  }
 </script>
 
 <main>
@@ -256,7 +262,7 @@
             <Input
               type="checkbox"
               checked={isFilteredSet(trait.name)}
-              label={trait.name}
+              label="{trait.name} {getEffectCostsString(trait)}"
               on:change={(e) => {
                 relicSetChange({ trait }, e);
               }}
